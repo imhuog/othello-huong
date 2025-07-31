@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useGame } from '../contexts/GameContext';
 import { useSocket } from '../contexts/SocketContext';
 import ThemeSelector from './ThemeSelector';
+import toast from 'react-hot-toast';
 
 const GameInfo: React.FC = () => {
   const { gameState, roomId, newGame, startGame, isAIGame, aiDifficulty } = useGame();
@@ -36,10 +37,35 @@ const GameInfo: React.FC = () => {
     return null; // Tie
   };
 
-  const copyRoomLink = () => {
-    const link = `${window.location.origin}?room=${roomId}`;
-    navigator.clipboard.writeText(link);
-    // Toast notification handled in context
+  const copyRoomLink = async () => {
+    try {
+      const link = `${window.location.origin}?room=${roomId}`;
+      await navigator.clipboard.writeText(link);
+      
+      // Hiển thị thông báo thành công
+      toast.success('🔗 Đã copy link vào clipboard!', {
+        duration: 3000,
+        style: {
+          background: 'linear-gradient(135deg, #10b981, #059669)',
+          color: 'white',
+          fontWeight: 'bold',
+          border: '2px solid #059669',
+        },
+        icon: '✅',
+      });
+    } catch (err) {
+      console.error('Không thể copy link:', err);
+      // Hiển thị thông báo lỗi
+      toast.error('❌ Không thể copy link!', {
+        duration: 3000,
+        style: {
+          background: 'linear-gradient(135deg, #ef4444, #dc2626)',
+          color: 'white',
+          fontWeight: 'bold',
+          border: '2px solid #dc2626',
+        },
+      });
+    }
   };
 
   // Helper function để lấy emoji quân cờ đúng
@@ -81,12 +107,14 @@ const GameInfo: React.FC = () => {
                     {roomId}
                   </code>
                 </div>
-                <button
+                <motion.button
                   onClick={copyRoomLink}
-                  className="w-full sm:w-auto px-4 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg text-white text-sm font-medium transition-colors"
+                  className="w-full sm:w-auto px-4 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg text-white text-sm font-medium transition-colors flex items-center justify-center gap-2"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                 >
-                  📋 Copy link
-                </button>
+                  📋 Copy link mời bạn
+                </motion.button>
               </div>
             </div>
           </div>
@@ -96,80 +124,75 @@ const GameInfo: React.FC = () => {
         <div className="space-y-3 mb-4 md:mb-6">
           <h3 className="text-base sm:text-lg font-semibold text-white">👥 Người chơi</h3>
           <div className="grid grid-cols-1 gap-3">
-            {gameState.players.map((player, index) => {
-              // Type assertion để xử lý thuộc tính coins
-              const playerWithCoins = player as typeof player & { coins?: number };
-              
-              return (
-                <motion.div
-                  key={player.id}
-                  className={`
-                    p-3 sm:p-4 rounded-lg border-2 transition-all duration-300
-                    ${gameState.currentPlayer === index + 1 && gameState.gameStatus === 'playing'
-                      ? 'border-yellow-400 bg-yellow-400/20 shadow-lg shadow-yellow-400/20'
-                      : 'border-gray-600 bg-gray-700/30'
-                    }
-                  `}
-                  initial={{ scale: 0.9, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ delay: index * 0.1 }}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3 flex-1 min-w-0">
-                      <span className="text-2xl sm:text-4xl flex-shrink-0">{player.emoji}</span>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center space-x-2 flex-wrap">
-                          <span className="font-semibold text-white text-sm sm:text-lg truncate">
-                            {player.name}
+            {gameState.players.map((player, index) => (
+              <motion.div
+                key={player.id}
+                className={`
+                  p-3 sm:p-4 rounded-lg border-2 transition-all duration-300
+                  ${gameState.currentPlayer === index + 1 && gameState.gameStatus === 'playing'
+                    ? 'border-yellow-400 bg-yellow-400/20 shadow-lg shadow-yellow-400/20'
+                    : 'border-gray-600 bg-gray-700/30'
+                  }
+                `}
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ delay: index * 0.1 }}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3 flex-1 min-w-0">
+                    <span className="text-2xl sm:text-4xl flex-shrink-0">{player.emoji}</span>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center space-x-2 flex-wrap">
+                        <span className="font-semibold text-white text-sm sm:text-lg truncate">
+                          {player.name}
+                        </span>
+                        {player.id === socket?.id && (
+                          <span className="text-xs bg-green-500 px-2 py-1 rounded-full text-white font-medium flex-shrink-0">
+                            Bạn
                           </span>
-                          {player.id === socket?.id && (
-                            <span className="text-xs bg-green-500 px-2 py-1 rounded-full text-white font-medium flex-shrink-0">
-                              Bạn
-                            </span>
-                          )}
-                        </div>
-                        <div className="text-xs sm:text-sm text-gray-400 mt-1 flex items-center gap-2">
-                          <span>Người chơi {index + 1} {getPlayerPieceEmoji(player, index)}</span>
-                          {/* Display coins for human players */}
-                          {player.id !== 'AI' && typeof playerWithCoins.coins === 'number' && (
-                            <motion.div 
-                              className="flex items-center gap-1 bg-yellow-500/20 px-2 py-1 rounded-full border border-yellow-500/30"
-                              whileHover={{ scale: 1.05 }}
-                              transition={{ type: "spring", stiffness: 300 }}
-                            >
-                              <span className="text-yellow-400">🪙</span>
-                              <span className="text-yellow-300 font-bold text-xs">{playerWithCoins.coins}</span>
-                            </motion.div>
-                          )}
-                        </div>
+                        )}
                       </div>
-                    </div>
-                    <div className="text-right flex-shrink-0">
-                      <div className="text-xl sm:text-3xl font-bold text-white">
-                        {gameState.scores[index + 1]}
-                      </div>
-                      <div className="text-xs text-gray-400 uppercase tracking-wide">
-                        điểm
+                      <div className="text-xs sm:text-sm text-gray-400 mt-1 flex items-center gap-2">
+                        <span>Người chơi {index + 1} {getPlayerPieceEmoji(player, index)}</span>
+                        {/* Display coins for human players */}
+                        {player.id !== 'AI' && typeof player.coins === 'number' && (
+                          <motion.div 
+                            className="flex items-center gap-1 bg-yellow-500/20 px-2 py-1 rounded-full border border-yellow-500/30"
+                            whileHover={{ scale: 1.05 }}
+                            transition={{ type: "spring", stiffness: 300 }}
+                          >
+                            <span className="text-yellow-400">🪙</span>
+                            <span className="text-yellow-300 font-bold text-xs">{player.coins}</span>
+                          </motion.div>
+                        )}
                       </div>
                     </div>
                   </div>
-                  
-                  {gameState.gameStatus === 'waiting' && (
-                    <div className="mt-3 flex justify-center">
-                      <span className={`
-                        text-xs sm:text-sm px-3 py-1 rounded-full font-medium
-                        ${player.isReady 
-                          ? 'bg-green-500 text-white' 
-                          : 'bg-gray-500 text-gray-200'
-                        }
-                      `}>
-                        {player.isReady ? '✅ Sẵn sàng' : '⏳ Đang chờ...'}
-                      </span>
+                  <div className="text-right flex-shrink-0">
+                    <div className="text-xl sm:text-3xl font-bold text-white">
+                      {gameState.scores[index + 1]}
                     </div>
-                  )}
-                </motion.div>
-              );
-            })}
+                    <div className="text-xs text-gray-400 uppercase tracking-wide">
+                      điểm
+                    </div>
+                  </div>
+                </div>
+                
+                {gameState.gameStatus === 'waiting' && (
+                  <div className="mt-3 flex justify-center">
+                    <span className={`
+                      text-xs sm:text-sm px-3 py-1 rounded-full font-medium
+                      ${player.isReady 
+                        ? 'bg-green-500 text-white' 
+                        : 'bg-gray-500 text-gray-200'
+                      }
+                    `}>
+                      {player.isReady ? '✅ Sẵn sàng' : '⏳ Đang chờ...'}
+                    </span>
+                  </div>
+                )}
+              </motion.div>
+            ))}
           </div>
         </div>
 
@@ -225,14 +248,6 @@ const GameInfo: React.FC = () => {
                 {(() => {
                   const winner = getWinner();
                   if (winner) {
-                    // Type assertion cho gameState để xử lý coinsAwarded
-                    const gameStateWithCoins = gameState as typeof gameState & { 
-                      coinsAwarded?: { 
-                        playerId: string; 
-                        amount: number 
-                      } 
-                    };
-
                     return (
                       <div className="p-4 sm:p-6 bg-gradient-to-r from-yellow-400/20 to-orange-400/20 rounded-xl border-2 border-yellow-400">
                         <div className="text-3xl sm:text-5xl mb-2 sm:mb-3">🏆</div>
@@ -244,7 +259,7 @@ const GameInfo: React.FC = () => {
                         </div>
                         
                         {/* Show coins earned if winner is current player and not AI */}
-                        {gameStateWithCoins.coinsAwarded && gameStateWithCoins.coinsAwarded.playerId === socket?.id && winner.player.id !== 'AI' && (
+                        {gameState.coinsAwarded && gameState.coinsAwarded.playerId === socket?.id && winner.player.id !== 'AI' && (
                           <motion.div
                             className="flex items-center justify-center gap-2 bg-yellow-500/20 px-4 py-2 rounded-lg border border-yellow-500/30"
                             initial={{ scale: 0, opacity: 0 }}
@@ -253,7 +268,7 @@ const GameInfo: React.FC = () => {
                           >
                             <span className="text-2xl">🪙</span>
                             <span className="text-yellow-300 font-bold">
-                              +{gameStateWithCoins.coinsAwarded.amount} xu được thưởng!
+                              +{gameState.coinsAwarded.amount} xu được thưởng!
                             </span>
                           </motion.div>
                         )}
