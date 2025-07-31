@@ -1,3 +1,5 @@
+import { Request, Response } from 'express';
+
 import express from 'express';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
@@ -868,7 +870,8 @@ io.on('connection', (socket) => {
 });
 
 // Health check endpoint
-app.get('/health', (req, res) => {
+app.get('/health', (req: Request, res: Response) => {
+
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
