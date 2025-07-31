@@ -17,9 +17,19 @@ const Board: React.FC = () => {
 
   // Show coins earned animation when game finishes and player won
   useEffect(() => {
-    if (gameState.gameStatus === 'finished' && gameState.coinsAwarded && gameState.coinsAwarded.playerId === socket?.id) {
+    // Type assertion to handle coinsAwarded property that might not be in the interface
+    const gameStateWithCoins = gameState as typeof gameState & { 
+      coinsAwarded?: { 
+        playerId: string; 
+        amount: number 
+      } 
+    };
+
+    if (gameState.gameStatus === 'finished' && 
+        gameStateWithCoins.coinsAwarded && 
+        gameStateWithCoins.coinsAwarded.playerId === socket?.id) {
       setCoinsEarnedInfo({
-        amount: gameState.coinsAwarded.amount,
+        amount: gameStateWithCoins.coinsAwarded.amount,
         isCurrentPlayer: true
       });
       setShowCoinsEarned(true);
@@ -32,7 +42,7 @@ const Board: React.FC = () => {
       
       return () => clearTimeout(timer);
     }
-  }, [gameState.gameStatus, gameState.coinsAwarded, socket?.id]);
+  }, [gameState.gameStatus, gameState, socket?.id]);
 
   const handleSquareClick = (row: number, col: number) => {
     if (!canPlay) return;
