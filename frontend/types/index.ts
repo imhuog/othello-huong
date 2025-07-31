@@ -155,6 +155,7 @@ export interface Player {
   emoji: string;
   color: 'black' | 'white';
   isReady: boolean;
+  coins?: number; // Thêm thuộc tính coins (optional)
   // Thêm thuộc tính cho quân cờ tùy chỉnh
   pieceEmoji?: {
     black: string;
