@@ -75,6 +75,8 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
 
     socket.on('gameStateUpdate', (newGameState: GameState) => {
       setGameState(prevState => {
+        // Comment toàn bộ logic coins earned notification
+        /*
         // Show coins earned notification if coins were awarded
         if (newGameState.coinsAwarded && 
             newGameState.coinsAwarded.playerId === socket.id &&
@@ -96,6 +98,7 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
             }
           );
         }
+        */
         
         return newGameState;
       });
