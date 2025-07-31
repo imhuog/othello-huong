@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useGame } from '../contexts/GameContext';
 import { useSocket } from '../contexts/SocketContext';
+import { Player } from '../types'; // Thêm import này
 import ThemeSelector from './ThemeSelector';
 import toast from 'react-hot-toast';
 
@@ -69,7 +70,7 @@ const GameInfo: React.FC = () => {
   };
 
   // Helper function để lấy emoji quân cờ đúng
-  const getPlayerPieceEmoji = (player: any, playerIndex: number) => {
+  const getPlayerPieceEmoji = (player: Player, playerIndex: number) => {
     // Kiểm tra nếu player có pieceEmoji tùy chỉnh
     if (player.pieceEmoji) {
       return playerIndex === 0 ? player.pieceEmoji.black : player.pieceEmoji.white;
@@ -155,7 +156,7 @@ const GameInfo: React.FC = () => {
                       <div className="text-xs sm:text-sm text-gray-400 mt-1 flex items-center gap-2">
                         <span>Người chơi {index + 1} {getPlayerPieceEmoji(player, index)}</span>
                         {/* Display coins for human players */}
-                        {player.id !== 'AI' && typeof player.coins === 'number' && (
+                        {player.id !== 'AI' && player.coins !== undefined && typeof player.coins === 'number' && (
                           <motion.div 
                             className="flex items-center gap-1 bg-yellow-500/20 px-2 py-1 rounded-full border border-yellow-500/30"
                             whileHover={{ scale: 1.05 }}
@@ -259,7 +260,7 @@ const GameInfo: React.FC = () => {
                         </div>
                         
                         {/* Show coins earned if winner is current player and not AI */}
-                        {gameState.coinsAwarded && gameState.coinsAwarded.playerId === socket?.id && winner.player.id !== 'AI' && (
+                        {(gameState as any).coinsAwarded && (gameState as any).coinsAwarded.playerId === socket?.id && winner.player.id !== 'AI' && (
                           <motion.div
                             className="flex items-center justify-center gap-2 bg-yellow-500/20 px-4 py-2 rounded-lg border border-yellow-500/30"
                             initial={{ scale: 0, opacity: 0 }}
@@ -268,7 +269,7 @@ const GameInfo: React.FC = () => {
                           >
                             <span className="text-2xl">🪙</span>
                             <span className="text-yellow-300 font-bold">
-                              +{gameState.coinsAwarded.amount} xu được thưởng!
+                              +{(gameState as any).coinsAwarded.amount} xu được thưởng!
                             </span>
                           </motion.div>
                         )}
