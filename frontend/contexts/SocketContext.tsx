@@ -30,7 +30,7 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
     // Sửa URL kết nối Socket.IO tại đây
     // Đảm bảo kết nối tới backend đang chạy trên port 3001
     // Xóa process.env.NEXT_PUBLIC_SOCKET_URL để tránh nhầm lẫn
-    const socketInstance = io('http://localhost:3001', {
+    const socketInstance = io('https://othello-huong.onrender.com', {
       transports: ['websocket'], // Ưu tiên websocket, bỏ 'polling' và 'timeout' nếu không cần thiết
     });
 
