@@ -25,7 +25,7 @@ app.use(express.json());
 const io = new Server(server, {
   cors: {
     origin: process.env.NODE_ENV === 'production' 
-      ? ['https://your-vercel-domain.vercel.app'] 
+      ? ['https://othello-huong.onrender.com'] 
       : ['http://localhost:3000'],
     methods: ["GET", "POST"]
   }
