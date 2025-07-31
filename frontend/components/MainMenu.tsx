@@ -87,7 +87,7 @@ const MainMenu: React.FC = () => {
         >
           <div className="text-5xl sm:text-6xl mb-4">⚫⚪</div>
           <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">Othello Game</h1>
-          <p className="text-gray-300 text-sm sm:text-base">Trò chơi cờ lật kinh điển</p>
+          <p className="text-gray-300 text-sm sm:text-base">Vào chơi với tui nàoooo</p>
           
           {/* Theme selector in header */}
           <div className="flex justify-center mt-4">
@@ -399,8 +399,8 @@ const MainMenu: React.FC = () => {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5 }}
         >
-          <p>🎮 Tạo bởi Claude AI</p>
-          <p className="mt-1">Phiên bản 2.0 - Cải tiến UI/UX</p>
+          <p>🎮 Zui zẻ hong quạo 🎮</p>
+          <p className="mt-1">Made by huongcute hehe</p>
         </motion.div>
       </motion.div>
     </div>
